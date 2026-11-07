@@ -1,6 +1,6 @@
 # backuppc-find.sh
 
-A lightweight Bash search utility for **BackupPC v4**.
+A lightweight Bash wrapper around **BackupPC_ls** for **BackupPC v4**
 
 BackupPC does not provide a native CLI search across host backups. `backuppc-find.sh` allows you to quickly locate files across individual hosts or your entire server using regular expressions, with support for searching both the latest snapshot and historical backup runs.
 
