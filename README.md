@@ -9,12 +9,13 @@ BackupPC does not provide a native CLI search across host backups. `backuppc-fin
 ## Usage
 
 ```text
-Usage: backuppc-find.sh [--all] <host|all> "<search_pattern>"
 
-Options:
-  --all             Search all historical backups (default: latest only)
-  host              Target host name, or 'all' for every host in pc/
-  <search_pattern>  Quoted regex pattern (e.g. "\.ods ", 'budget', "\.(ods|xls) ")
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh -h
+Usage: /usr/share/backuppc/bin/backuppc-find.sh [-j cores] [--all] <host|all> "<search_pattern>"
+  -j, --jobs, --max-cores  Max concurrent CPU worker jobs (default: 16)
+  -a, --all                Search all historical backups (default: latest only)
+  host                     Target host name, or 'all' for every host in pc/
+  <search_pattern>         Quoted regex pattern (e.g. "\.ods " or 'budget')
 
 ```
 
