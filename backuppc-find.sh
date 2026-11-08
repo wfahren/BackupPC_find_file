@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 #
-# bpc-find.sh - Search for files inside BackupPC v4 backups
-# Usage: ./bpc-find.sh [--all] <host|all> "<search_string>"
+# backuppc-find.sh - Search for files inside BackupPC v4 backups in parallel
+# Usage: ./backuppc-find.sh [-j <cores>] [--all] <host|all> "<search_string>"
 #
 
 BPC_DIR="${BPC_DIR:-/var/lib/backuppc}"
 SHARE="${SHARE:-/}"
+
+# Default to MAX_CORES env var, or system core count, fallback to 2
+MAX_CORES="${MAX_CORES:-$(nproc 2>/dev/null || echo 2)}"
 
 # Locate BackupPC_ls binary
 BPC_LS=""
@@ -31,15 +34,20 @@ POSITIONAL_ARGS=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        -j|--jobs|-c|--max-cores)
+            MAX_CORES="$2"
+            shift 2
+            ;;
         -a|--all)
             SEARCH_ALL=true
             shift
             ;;
         -h|--help)
-            echo "Usage: $0 [--all] <host|all> \"<search_pattern>\""
-            echo "  --all             Search all historical backups (default: latest only)"
-            echo "  host              Target host name, or 'all' for every host in pc/"
-            echo "  <search_pattern>  Quoted regex pattern (e.g. \"\.ods \" or 'budget'), \"\.(ods|xls) \""
+            echo "Usage: $0 [-j cores] [--all] <host|all> \"<search_pattern>\""
+            echo "  -j, --jobs, --max-cores  Max concurrent CPU worker jobs (default: ${MAX_CORES})"
+            echo "  -a, --all                Search all historical backups (default: latest only)"
+            echo "  host                     Target host name, or 'all' for every host in pc/"
+            echo "  <search_pattern>         Quoted regex pattern (e.g. \"\.ods \" or 'budget')"
             exit 0
             ;;
         *)
@@ -49,9 +57,14 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if ! [[ "$MAX_CORES" =~ ^[1-9][0-9]*$ ]]; then
+    echo "Error: MAX_CORES must be a positive integer (got: $MAX_CORES)" >&2
+    exit 1
+fi
+
 if [[ ${#POSITIONAL_ARGS[@]} -lt 2 ]]; then
     echo "Error: Missing required arguments." >&2
-    echo "Usage: $0 [--all] <host|all> \"<search_pattern>\"" >&2
+    echo "Usage: $0 [-j cores] [--all] <host|all> \"<search_pattern>\"" >&2
     exit 1
 fi
 
@@ -75,6 +88,9 @@ else
     HOSTS+=("$TARGET_HOST")
 fi
 
+# Clean up background worker subshells on Ctrl+C (SIGINT / SIGTERM)
+trap 'kill $(jobs -p) 2>/dev/null; exit 130' INT TERM
+
 # Search function per host and backup number
 search_backup() {
     local host="$1"
@@ -82,7 +98,18 @@ search_backup() {
     local label="$3"
 
     "$BPC_LS" -R -h "$host" -n "$num" -s "$SHARE" / 2>/dev/null \
-        | grep -H --color --label="$label" -i -E -- "$SEARCH_REGEX"
+        | grep --line-buffered -H --color=auto --label="$label" -i -E -- "$SEARCH_REGEX" || true
+}
+
+# Worker pool manager
+job_count=0
+queue_job() {
+    search_backup "$@" &
+    ((job_count++))
+    if (( job_count >= MAX_CORES )); then
+        wait -n 2>/dev/null || true
+        ((job_count--))
+    fi
 }
 
 # Execute search
@@ -95,12 +122,16 @@ for host in "${HOSTS[@]}"; do
             continue
         fi
 
-        # Read historical backup numbers from column 1
-        awk '$1 ~ /^[0-9]+$/ {print $1}' "$backups_file" | while read -r b_num; do
-            search_backup "$host" "$b_num" "${host} [backup #${b_num}]"
+        # Use mapfile instead of a piped subshell so jobs stay in the parent shell
+        mapfile -t backup_nums < <(awk '$1 ~ /^[0-9]+$/ {print $1}' "$backups_file")
+        for b_num in "${backup_nums[@]}"; do
+            queue_job "$host" "$b_num" "${host} [backup #${b_num}]"
         done
     else
-        # Search the latest filled backup (-1)
-        search_backup "$host" "-1" "${host} [latest]"
+        # Search latest backup (-1)
+        queue_job "$host" "-1" "${host} [latest]"
     fi
 done
+
+# Wait for all remaining background jobs to finish
+wait
