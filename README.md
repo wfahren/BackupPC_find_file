@@ -24,19 +24,24 @@ Options:
 
 ## Installation
 
+
 1. Copy the script to `/usr/share/backuppc/bin/backuppc-find.sh`:
 ```bash
 sudo nano /usr/share/backuppc/bin/backuppc-find.sh
-
 ```
-
-
 2. Make it executable:
 ```bash
 sudo chmod +x /usr/share/backuppc/bin/backuppc-find.sh
 
 ```
+### Quick Install (wget)
 
+Download the script directly and make it executable:
+
+```bash
+sudo wget -O /usr/share/backuppc/bin/backuppc-find.sh https://raw.githubusercontent.com/wfahren/BackupPC_find_file/refs/heads/main/backuppc-find.sh
+sudo chmod +x /usr/share/backuppc/bin/backuppc-find.sh
+```
 
 
 ---
@@ -55,6 +60,9 @@ sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "\.ods "
 
 # Match either .ods or .ods.bak
 sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "\.(ods|ods\.bak) "
+
+# Match .sh in only user home directory
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find-v2.sh all "/home/user/[^/]+\.sh "
 
 ```
 
