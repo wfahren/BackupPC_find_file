@@ -44,7 +44,7 @@ sudo chmod +x /usr/share/backuppc/bin/backuppc-find.sh
 Download the script directly and make it executable:
 
 ```bash
-sudo wget -O /usr/share/backuppc/bin/backuppc-find.sh [https://raw.githubusercontent.com/wfahren/BackupPC_find_file/refs/heads/main/backuppc-find.sh](https://raw.githubusercontent.com/wfahren/BackupPC_find_file/refs/heads/main/backuppc-find.sh)
+sudo wget -O /usr/share/backuppc/bin/backuppc-find.sh https://raw.githubusercontent.com/wfahren/BackupPC_find_file/refs/heads/main/backuppc-find.sh
 sudo chmod +x /usr/share/backuppc/bin/backuppc-find.sh
 
 ```
