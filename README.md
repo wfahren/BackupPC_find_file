@@ -127,7 +127,7 @@ You can test and preview your patterns online at [regex101.com](https://regex101
 | `$` | End of line (end of file path) | `\.ods$` | Files ending strictly in `.ods` |
 | `^` | Beginning of line | `^/etc/` | Paths starting with `/etc/` |
 | `\.` | Escaped literal dot | `\.sh$` | Literal `.sh` extension (not any char) |
-| `|` | Alternation (OR) | `\.(jpg\|png\|webp)$` | Multiple file types |
+| `\|` | Alternation (OR) | `\.(jpg\|png\|webp)$` | Multiple file types |
 | `[^/]+` | Any characters except a slash `/` | `[^/]+\.sh$` | Matches/highlights just the filename |
 | `?` | 0 or 1 occurrence (optional) | `\.jpe?g$` | Matches both `.jpg` and `.jpeg` |
 | `+` | 1 or more occurrences | `backup_[0-9]+\.tar$` | `backup_1.tar`, `backup_99.tar` |
