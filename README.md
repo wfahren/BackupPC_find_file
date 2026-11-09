@@ -132,7 +132,7 @@ You can test and preview your patterns online at [regex101.com](https://regex101
 | `?` | 0 or 1 occurrence (optional) | `\.jpe?g$` | Matches both `.jpg` and `.jpeg` |
 | `+` | 1 or more occurrences | `backup_[0-9]+\.tar$` | `backup_1.tar`, `backup_99.tar` |
 | `{n,m}` | Between `n` and `m` repetitions | `([^/]+/){1,2}` | 1 or 2 directory levels deep |
-| `( )` | Grouping | `(daily\|weekly)` | Groups tokens for `|` or quantifiers |
+| `( )` | Grouping | `(daily\|weekly)` | Groups tokens for `\|` or quantifiers |
 
 > **Note:** Perl-style regex features (PCRE) such as lookaheads `(?=...)`, non-greedy quantifiers `.*?`, and shorthands like `\d` or `\s` are **not supported** in standard POSIX ERE. Use `[0-9]` for digits or `[[:space:]]` for whitespace.
 
