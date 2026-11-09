@@ -62,8 +62,14 @@ sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "\.ods "
 # Match either .ods or .ods.bak
 sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "\.(ods|ods\.bak) "
 
-# Match .sh in only user home directory
+# Match .sh in only user home directory (replace "user" with the target username)
 sudo -u backuppc /usr/share/backuppc/bin/backuppc-find-v2.sh all "/home/user/[^/]+\.sh "
+
+# Match files with extension .sh at specific directory depths under /home/user/ (replace "user" with the target username):
+#   {0,3}  Matches user home root and up to 3 subdirectories deep (0 to 3 levels)
+#   {1,2}  Matches 1 or 2 subdirectories deep
+#   {2,3}  Matches 2 or 3 subdirectories deep
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "/home/user/([^/]+/){0,3}[^/]+\.sh "
 
 ```
 
