@@ -155,7 +155,7 @@ sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '\.(ods|xlsx|
 
 * **Search strictly within a specific folder (no subdirectories):**
 ```bash
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '^/etc/[^/]+\.conf$'
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '/etc/[^/]+\.conf$'
 ```
 
 * **Files at specific folder depths (e.g., 1 to 3 subdirectories deep):**
