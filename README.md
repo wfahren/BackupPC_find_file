@@ -60,8 +60,10 @@ Make sure to replace `hostname` with the host you want in the command examples b
 ### 1. Search the Latest Backup on a Single Host
 
 ```bash
-# Find any file ending in .ods
+# Find any file ending in .ods highlight .ods
 sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "\.ods\$"
+# Find any file ending in .ods highlight complete file name
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all "[^/]+\.ods$"
 
 # Match either .ods or .ods.bak
 sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "\.(ods|ods\.bak)\$"
