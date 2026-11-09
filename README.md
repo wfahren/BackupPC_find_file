@@ -12,11 +12,10 @@ BackupPC does not provide a native CLI search across host backups. `backuppc-fin
 sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh -h
 Usage: /usr/share/backuppc/bin/backuppc-find.sh [-j cores] [--hash] [--all] <host|all> "<search_pattern>"
   -j, --jobs, --max-cores  Max concurrent CPU worker jobs (default: 16)
-  --hash, --checksum       Retain file MD5 checksums (disables end-of-path '\$' matching)
+  --hash, --checksum       Retain file MD5 checksums (disables end-of-path '$' matching)
   -a, --all                Search all historical backups (default: latest only)
   host                     Target host name, or 'all' for every host in pc/
-  <search_pattern>         Regex pattern (e.g. "\.ods\$" or "budget")
-
+  <search_pattern>         Regex pattern (e.g. '\.ods$' or 'budget')
 ```
 
 > **Note on File Extensions:** By default, the script strips the MD5 checksums that `BackupPC_ls` normally appends to file paths. This allows you to use standard regex anchors like `$` to match file extensions cleanly (e.g., `\.ods$`). If you need to see the checksum hashes in your output, use the `--hash` flag.
@@ -26,27 +25,21 @@ Usage: /usr/share/backuppc/bin/backuppc-find.sh [-j cores] [--hash] [--all] <hos
 ## Installation
 
 1. Copy the script to `/usr/share/backuppc/bin/backuppc-find.sh`:
-
 ```bash
 sudo nano /usr/share/backuppc/bin/backuppc-find.sh
-
 ```
 
 2. Make it executable:
-
 ```bash
 sudo chmod +x /usr/share/backuppc/bin/backuppc-find.sh
-
 ```
 
 ### Quick Install (wget)
 
 Download the script directly and make it executable:
-
 ```bash
 sudo wget -O /usr/share/backuppc/bin/backuppc-find.sh https://raw.githubusercontent.com/wfahren/BackupPC_find_file/refs/heads/main/backuppc-find.sh
 sudo chmod +x /usr/share/backuppc/bin/backuppc-find.sh
-
 ```
 
 ---
@@ -60,51 +53,50 @@ Make sure to replace `hostname` with the host you want in the command examples b
 ### 1. Search the Latest Backup on a Single Host
 
 ```bash
-# Find any file ending in .ods highlight .ods
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "\.ods\$"
-# Find any file ending in .ods highlight complete file name
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all "[^/]+\.ods$"
+# Find any file ending in .ods (highlights only the ".ods" extension)
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '\.ods$'
+
+# Find any file ending in .ods (highlights the standalone filename, e.g., "budget.ods")
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '[^/]+\.ods$'
+
+# Find any file ending in .ods (highlights the complete absolute file path)
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '/[^ ]+\.ods$'
 
 # Match either .ods or .ods.bak
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "\.(ods|ods\.bak)\$"
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '\.(ods|ods\.bak)$'
 
 # Match files with extension .sh in only the user's home directory (replace "user" with target username)
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all "/home/user/[^/]+\.sh\$"
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '^/home/user/[^/]+\.sh$'
 
 # Match files with extension .sh at specific directory depths under /home/user/:
 #   {0,3}  Matches user home root and up to 3 subdirectories deep (0 to 3 levels)
 #   {1,2}  Matches 1 or 2 subdirectories deep
 #   {2,3}  Matches 2 or 3 subdirectories deep
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname "/home/user/([^/]+/){0,3}[^/]+\.sh\$"
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '/home/user/([^/]+/){0,3}[^/]+\.sh$'
 ```
 
 ### 2. Search All Historical Backups on a Single Host
 
 ```bash
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh --all hostname "\.ods\$"
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh --all hostname '\.ods$'
 ```
 
 ### 3. Search Historical Backups Across All Hosts (Parallel Multi-Core)
 
 ```bash
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh --all all "\.ods\$"
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh --all all '\.ods$'
 ```
 
 ### 4. Search for Filenames Containing Spaces
 
 ```bash
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh --all hostname "Annual Budget 2018"
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh --all hostname 'Annual Budget 2018'
 ```
 
 ### 5. Run Remotely via SSH
 
 ```bash
-ssh -t backuppc-server "sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '\.ods\$'"
-
+ssh -t backuppc-server "sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '\.ods$'"
 ```
 
 ---
@@ -118,9 +110,9 @@ Once you find the file path, host, and backup number, extract it directly to you
 # BackupPC_tarCreate -h <host> -n <backup_num> -s <share> /path/to/file | tar -xvf -
 
 sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n 42 -s / /home/user/Documents/budget.ods | tar -xvf -
-
 ```
-***
+
+---
 
 ## Regex Cheatsheet (POSIX ERE)
 
@@ -148,37 +140,26 @@ You can test and preview your patterns online at [regex101.com](https://regex101
 
 * **Highlight only the filename:**
 ```bash
-
-  sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '[^/]+\.sh\$'
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '[^/]+\.sh$'
 ```
 
 * **Highlight the entire path:**
 ```bash
-
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '/[^ ]+\.sh\$'
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '/[^ ]+\.sh$'
 ```
-
 
 * **Multiple file extensions (case-insensitive by default):**
 ```bash
-
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '\.(ods|xlsx|csv)\$'
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '\.(ods|xlsx|csv)$'
 ```
-
 
 * **Search strictly within a specific folder (no subdirectories):**
 ```bash
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '^/etc/[^/]+\.conf\$'
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '^/etc/[^/]+\.conf$'
 ```
-
 
 * **Files at specific folder depths (e.g., 1 to 3 subdirectories deep):**
 ```bash
-
-sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '/home/user/([^/]+/){1,3}[^/]+\.sh\$'
-
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '/home/user/([^/]+/){1,3}[^/]+\.sh$'
 ```
+                  
