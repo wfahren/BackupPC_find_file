@@ -120,3 +120,65 @@ Once you find the file path, host, and backup number, extract it directly to you
 sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n 42 -s / /home/user/Documents/budget.ods | tar -xvf -
 
 ```
+***
+
+## Regex Cheatsheet (POSIX ERE)
+
+`backuppc-find.sh` uses **POSIX Extended Regular Expressions (ERE)** via `grep -E`. In POSIX ERE, metacharacters such as `+`, `?`, `|`, `()`, and `{}` work natively without backslash escaping.
+
+You can test and preview your patterns online at [regex101.com](https://regex101.com) by setting the **Flavor** dropdown to **POSIX ERE**.
+
+### Common Syntax & Tokens
+
+| Token | Description | Example | Matches |
+| :--- | :--- | :--- | :--- |
+| `$` | End of line (end of file path) | `\.ods$` | Files ending strictly in `.ods` |
+| `^` | Beginning of line | `^/etc/` | Paths starting with `/etc/` |
+| `\.` | Escaped literal dot | `\.sh$` | Literal `.sh` extension (not any char) |
+| `|` | Alternation (OR) | `\.(jpg\|png\|webp)$` | Multiple file types |
+| `[^/]+` | Any characters except a slash `/` | `[^/]+\.sh$` | Matches/highlights just the filename |
+| `?` | 0 or 1 occurrence (optional) | `\.jpe?g$` | Matches both `.jpg` and `.jpeg` |
+| `+` | 1 or more occurrences | `backup_[0-9]+\.tar$` | `backup_1.tar`, `backup_99.tar` |
+| `{n,m}` | Between `n` and `m` repetitions | `([^/]+/){1,2}` | 1 or 2 directory levels deep |
+| `( )` | Grouping | `(daily\|weekly)` | Groups tokens for `|` or quantifiers |
+
+> **Note:** Perl-style regex features (PCRE) such as lookaheads `(?=...)`, non-greedy quantifiers `.*?`, and shorthands like `\d` or `\s` are **not supported** in standard POSIX ERE. Use `[0-9]` for digits or `[[:space:]]` for whitespace.
+
+### Common BackupPC Search Recipes
+
+* **Highlight only the filename:**
+```bash
+
+  sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '[^/]+\.sh\$'
+
+```
+
+* **Highlight the entire path:**
+```bash
+
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh all '/[^ ]+\.sh\$'
+
+```
+
+
+* **Multiple file extensions (case-insensitive by default):**
+```bash
+
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '\.(ods|xlsx|csv)\$'
+
+```
+
+
+* **Search strictly within a specific folder (no subdirectories):**
+```bash
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '^/etc/[^/]+\.conf\$'
+
+```
+
+
+* **Files at specific folder depths (e.g., 1 to 3 subdirectories deep):**
+```bash
+
+sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.sh hostname '/home/user/([^/]+/){1,3}[^/]+\.sh\$'
+
+```
