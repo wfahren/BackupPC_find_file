@@ -103,16 +103,26 @@ ssh -t backuppc-server "sudo -u backuppc /usr/share/backuppc/bin/backuppc-find.s
 
 ## Restoring a Found File
 
-Once you find the file path, host, and backup number, extract it directly to your current directory using `BackupPC_tarCreate`:
+Once you find the file path, host, and backup number ( -1  for latest) , extract it directly to your current directory using `BackupPC_tarCreate`:
 
 ```bash
 # Usage:
-# BackupPC_tarCreate -h <host> -n <backup_num> -s <share> /path/to/file | tar -xvf -
+# BackupPC_tarCreate -h <host> -n <backup_num> -s <share> -r '/path/to/file' '/path/to/file' | tar -xvf -
+# dump number from which the tar archive is created. A negative number means relative to the end
+# (eg -1 means the most recent dump, -2 2nd most recent etc).
 
-sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n 42 -s / /home/user/Documents/budget.ods | tar -xvf -
+# Save in current directory as regular file
+sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n -1 -s / -r '/home/user/Documents/budget.ods' '/home/user/Documents/budget.ods' | tar -xvf -
+
+# Save in current directory as compressed tar archive file
+sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n -1 -s / -r '/home/user/Documents/budget.ods' '/home/user/Documents/budget.ods' | gzip > budget_restored.tar.gz
+
 ```
+The command-line files and directories are relative to the specified shareName. The tar file is written to stdout.
+The -h, -n and -s options specify which dump is used to generate the tar archive. The -r and -p options can be used
+to relocate the paths in the tar archive so extracted files can be placed in a location different from their original location.
 
----
+***
 
 ## Regex Cheatsheet (POSIX ERE)
 
