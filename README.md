@@ -111,11 +111,14 @@ Once you find the file path, host, and backup number ( -1  for latest) , extract
 # dump number from which the tar archive is created. A negative number means relative to the end
 # (eg -1 means the most recent dump, -2 2nd most recent etc).
 
-# Save in current directory as regular file
+# Save in current directory as a regular file
 sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n -1 -s / -r '/home/user/Documents/budget.ods' '/home/user/Documents/budget.ods' | tar -xvf -
 
-# Save in current directory as compressed tar archive file
-sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n -1 -s / -r '/home/user/Documents/budget.ods' '/home/user/Documents/budget.ods' | gzip > budget_restored.tar.gz
+# Save in current directory as a tar archive file removing the original path
+sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n -1 -s / -r '/home/user/Documents/budget.ods' '/home/user/Documents/budget.ods' > budget_restored.tar
+
+# Save in current directory as a tar file retaining the original path
+sudo -u backuppc /usr/share/backuppc/bin/BackupPC_tarCreate -h hostname -n -1 -s / '/home/user/Documents/budget.ods' > budget_restored.tar
 
 ```
 The command-line files and directories are relative to the specified shareName. The tar file is written to stdout.
